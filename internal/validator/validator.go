@@ -50,5 +50,5 @@ func Birthdate(date string) bool {
 
     _, err := time.Parse(layout, date)
 
-    return err != nil
+    return err == nil
 }

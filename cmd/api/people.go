@@ -32,7 +32,7 @@ func (app *application) searchPeopleHandler(w http.ResponseWriter, r *http.Reque
     input.Search = app.readString(qs, "t", "")
 
     if input.Search == "" {
-        app.emptyResponse(w, r)
+        app.badRequestResponse(w, r, errors.New("empty search"))
         return
     }
 
