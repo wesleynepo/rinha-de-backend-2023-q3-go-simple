@@ -1,29 +1,19 @@
-# syntax=docker/dockerfile:1
-ENV port=4000
-ENV dsn=""
+FROM golang:1.20-buster as builder
 
-FROM golang:1.20
-
-# Set destination for COPY
 WORKDIR /app
 
-# Download Go modules
-COPY go.mod go.sum ./
+COPY go.* ./
 RUN go mod download
 
-# Copy the source code. Note the slash at the end, as explained in
-# https://docs.docker.com/engine/reference/builder/#copy
-COPY *.go ./
+COPY . ./
 
-# Build
-RUN CGO_ENABLED=0 GOOS=linux go build -o /gopherinha
+RUN go build -ldflags='-s -X main.buildTime=${current_time}' -o=./bin/api ./cmd/api 
 
-# Optional:
-# To bind to a TCP port, runtime parameters must be supplied to the docker command.
-# But we can document in the Dockerfile what ports
-# the application is going to listen on by default.
-# https://docs.docker.com/engine/reference/builder/#expose
-EXPOSE 8080
+FROM debian:buster-slim
+RUN set -x && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# Run
-CMD ["/gopherinha -port=${port} -db-dsn=${dsn}"]
+COPY --from=builder /app/bin/api /app/api
+
+CMD ["/app/api"]
