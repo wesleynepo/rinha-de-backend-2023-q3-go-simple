@@ -36,6 +36,41 @@ func (p PeopleModel) Count() (int, error) {
     return count, nil
 }
 
+func (p PeopleModel) Get(id string) (*Person, error) {
+    if id == "" {
+        return nil, ErrRecordNotFound
+    }
+    
+    query := `
+    SELECT id, nome, apelido, nascimento, stack 
+    FROM pessoas
+    WHERE id = $1`
+
+    var person Person
+
+    ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
+    defer cancel()
+
+    err := p.DB.QueryRowContext(ctx, query, id).Scan(
+        &person.UUID,
+        &person.Nome,
+        &person.Apelido,
+        &person.Nascimento,
+        pq.Array(&person.Stack),
+    )
+
+    if err != nil {
+        switch {
+        case errors.Is(err, sql.ErrNoRows):
+            return nil, ErrRecordNotFound
+        default:
+            return nil, err
+        }
+    }
+
+    return &person, nil
+}
+
 func (p PeopleModel) Insert(person *Person) error {
     query := `
     INSERT INTO pessoas (id, nome, apelido, nascimento, stack) 
@@ -67,7 +102,7 @@ type Person struct {
     Apelido string `json:"apelido"`
     Nome string `json:"nome"`
     Nascimento string `json:"nascimento"`
-    Stack *[]string `json:"stack"`
+    Stack []string `json:"stack"`
 }
 
 func ValidatePerson(v *validator.Validator, person *Person) {

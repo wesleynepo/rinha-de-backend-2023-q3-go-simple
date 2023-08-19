@@ -40,7 +40,7 @@ func (app *application) createPeopleHandler(w http.ResponseWriter, r *http.Reque
         Nome: input.Nome,
         Apelido: input.Apelido,
         Nascimento: input.Nascimento,
-        Stack: &input.Stack,
+        Stack: input.Stack,
     }
 
     v := validator.New()
@@ -69,4 +69,25 @@ func (app *application) createPeopleHandler(w http.ResponseWriter, r *http.Reque
     if err != nil {
         app.serverErrorResponse(w, r, err)
     }
+}
+
+func (app *application) showPersonHandler(w http.ResponseWriter, r *http.Request) {
+    id := app.readIDParam(r)
+
+    person, err := app.models.People.Get(id)
+
+    if err != nil {
+        switch {
+        case errors.Is(err, data.ErrRecordNotFound):
+            app.notFoundResponse(w, r)
+        default:
+            app.serverErrorResponse(w, r, err)
+        }
+        return
+    }
+
+    err = app.writeJSON(w, http.StatusOK, person, nil)
+    if err != nil {
+        app.serverErrorResponse(w, r, err)
+    } 
 }
