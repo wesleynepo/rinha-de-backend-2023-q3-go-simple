@@ -14,8 +14,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.2'
-          memory: '0.9GB'
+          cpus: '0.5'
+          memory: '1GB'
 
   api01:
     image: wesleynepo/gopherinha 
@@ -29,8 +29,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '1.0GB'
+          cpus: '0.4'
+          memory: '0.95GB'
   
   api02:
     image: wesleynepo/gopherinha 
@@ -44,8 +44,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: '1.0GB'
+          cpus: '0.4'
+          memory: '0.95GB'
   
   nginx:
     image: nginx:latest
@@ -59,7 +59,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.3'
+          cpus: '0.2'
           memory: '0.1GB'
 
 networks:
