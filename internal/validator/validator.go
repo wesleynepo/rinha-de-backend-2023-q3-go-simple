@@ -1,5 +1,7 @@
 package validator
 
+import "time"
+
 type Validator struct {
 	Errors map[string]string
 }
@@ -41,4 +43,12 @@ func Unique(values []string) bool {
 	}
 
 	return len(values) == len(uniqueValues)
+}
+
+func Birthdate(date string) bool {
+    layout := "2000-01-02"
+
+    _, err := time.Parse(layout, date)
+
+    return err != nil
 }
