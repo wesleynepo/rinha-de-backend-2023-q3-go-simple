@@ -5,3 +5,7 @@ CREATE TABLE IF NOT EXISTS pessoas (
     nascimento DATE NOT NULL,
     stack text[] NULL
 );
+
+CREATE INDEX IF NOT EXISTS pessoas_nome_idx ON pessoas USING GIN (to_tsvector('simple', nome));
+CREATE INDEX IF NOT EXISTS pessoas_apelido_idx ON pessoas USING GIN (to_tsvector('simple', apelido));
+CREATE INDEX IF NOT EXISTS pessoas_stack_idx ON pessoas USING GIN (stack);

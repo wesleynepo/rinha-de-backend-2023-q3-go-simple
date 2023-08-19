@@ -22,6 +22,34 @@ func (app *application) countPeopleHandler(w http.ResponseWriter, r *http.Reques
     return
 }
 
+func (app *application) searchPeopleHandler(w http.ResponseWriter, r *http.Request) {
+    var input struct {
+        Search string
+    }
+
+    qs := r.URL.Query()
+
+    input.Search = app.readString(qs, "t", "")
+
+    if input.Search == "" {
+        app.emptyResponse(w, r)
+        return
+    }
+
+    people, err := app.models.People.GetAll(input.Search)
+    if err != nil {
+        app.logError(r, err)
+        app.emptyResponse(w, r)
+        return
+    }
+
+    err = app.writeJSON(w, http.StatusOK, people, nil)
+    if err != nil {
+        app.serverErrorResponse(w, r, err)
+    }
+
+}
+
 func (app *application) createPeopleHandler(w http.ResponseWriter, r *http.Request) {
     var input struct {
         Apelido string `json:"apelido"`

@@ -96,6 +96,51 @@ func (p PeopleModel) Insert(person *Person) error {
     return nil
 }
 
+func (p PeopleModel) GetAll(searchTerm string) ([]*Person, error) {
+    query := `
+    SELECT id, nome, apelido, nascimento, stack 
+    FROM pessoas
+    WHERE (to_tsvector('simple', nome) @@ plainto_tsquery('simple', $1) OR 
+    (to_tsvector('simple', apelido) @@ plainto_tsquery('simple', $1)) OR
+    (to_tsvector('simple', array_to_string(stack, ',')) @@ plainto_tsquery('simple', $1)))
+    LIMIT 50`
+
+    ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
+    defer cancel()
+
+    rows, err := p.DB.QueryContext(ctx, query, searchTerm)
+    if err != nil {
+        return nil, err
+    }
+
+    defer rows.Close()
+    people := []*Person{}
+
+    for rows.Next() {
+        var person Person 
+
+        err := rows.Scan(
+            &person.UUID,
+            &person.Nome,
+            &person.Apelido,
+            &person.Nascimento,
+            pq.Array(&person.Stack),
+        )
+
+        if err != nil {
+            return nil, err
+        }
+
+        people = append(people, &person)
+    }
+
+    if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return people, nil
+}
+
 
 type Person struct {
     UUID string `json:"id"`

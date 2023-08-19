@@ -22,6 +22,16 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
     }
 }
 
+func (app *application) emptyResponse(w http.ResponseWriter, r *http.Request) {
+    empty := []int{}
+
+    err := app.writeJSON(w, http.StatusOK, empty, nil)
+    if err != nil {
+        app.logError(r, err)
+        w.WriteHeader(500)
+    }
+}
+
 func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
     app.logError(r, err)
 
