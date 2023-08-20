@@ -26,6 +26,7 @@ services:
       - DB_DSN=postgres://admin:123@db/rinha?sslmode=disable
     expose:
       - "4000"
+    restart: on-failure
     deploy:
       resources:
         limits:
@@ -41,6 +42,7 @@ services:
       - DB_DSN=postgres://admin:123@db/rinha?sslmode=disable
     expose:
       - "4000"
+    restart: on-failure
     deploy:
       resources:
         limits:
@@ -56,6 +58,7 @@ services:
       - api02
     ports:
       - "9999:9999"
+    restart: on-failure
     deploy:
       resources:
         limits:
